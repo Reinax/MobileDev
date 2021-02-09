@@ -1,42 +1,23 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
-import React, { Component } from 'react'
-import { View, TextInput, Text, Button, StyleSheet, Alert } from 'react-native';
-
-class HomeScreen extends Component {
-
-   constructor(props) {
-      super(props);
-
-   }
-
-
-   render() {
-      return (
-         <View>
-            <Text>Home Screen</Text>
-            <Button
-            title="About Me"
-            onPress={() => this.props.navigation.navigate('About')}
-            />
-            <Button
-            title="Additional Info"
-            onPress={() => this.props.navigation.navigate('About')}
-            />
-
-         </View>
-      )
-   }
+class HomeScreen extends React.Component {
+  render() {
+    return (
+      <View style={styles.container}>
+        <Text>Yet to be Edited!</Text>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
+   container: {
+     flex: 1,
+     backgroundColor: '#fff',
+     alignItems: 'center',
+     justifyContent: 'center',
+   },
+ });
 
-});
-
-export default HomeScreen
+export default HomeScreen;
