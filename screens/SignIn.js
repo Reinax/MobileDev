@@ -1,7 +1,8 @@
 // Homescreen.js
 import React from 'react';
-import { StyleSheet, TextInput, View, Button, ToastAndroid } from 'react-native';
+import { TextInput, View, Button, ToastAndroid } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { global_styles } from '../GblStyle/GlobalStyle';
 
 class SignIn extends React.Component {
   constructor(props){
@@ -46,7 +47,7 @@ class SignIn extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <View style={global_styles.background}>
         <TextInput
         placeholder="Example@gmail.com..."
         onChangeText={(email) => this.setState({email})}
@@ -76,15 +77,5 @@ class SignIn extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
-
 
 export default SignIn;

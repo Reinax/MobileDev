@@ -1,7 +1,8 @@
 // CreateAccount.js
 import React from 'react';
-import {StyleSheet, View, Button, TextInput, ToastAndroid} from 'react-native';
+import { View, Button, TextInput, ToastAndroid } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { global_styles } from '../GblStyle/GlobalStyle';
 
 class CreateAccount extends React.Component {
 
@@ -37,7 +38,7 @@ class CreateAccount extends React.Component {
     .then(async (responseJson) => {
       console.log(responseJson);
       await AsyncStorage.setItem('@user_id', JSON.stringify(responseJson.id));
-      this.props.navigation.navigate("SignIn");
+      this.props.navigation.navigate("Sign In");
     })
     .catch((error) => {
       console.log(error);
@@ -47,7 +48,7 @@ class CreateAccount extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <View style={global_styles.background}>
 
         <TextInput 
           placeholder="Enter First Name..."
@@ -83,12 +84,5 @@ class CreateAccount extends React.Component {
     );
   }
 }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+
 export default CreateAccount;
