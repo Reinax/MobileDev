@@ -1,6 +1,6 @@
 // Homescreen.js
 import React from 'react';
-import { TextInput, View, Button, ToastAndroid } from 'react-native';
+import { TextInput, View, Button, ToastAndroid, Text } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { global_styles } from '../GblStyle/GlobalStyle';
 
@@ -36,7 +36,7 @@ class SignIn extends React.Component {
         console.log(responseJson);
         await AsyncStorage.setItem('@session_token', responseJson.token);
         await AsyncStorage.setItem('@user_id', JSON.stringify(responseJson.id));
-        this.props.navigation.navigate("Home Screen");
+        this.props.navigation.navigate('Home Screen');
     })
     .catch((error) => {
       console.log(error);
@@ -47,27 +47,32 @@ class SignIn extends React.Component {
 
   render() {
     return (
-      <View style={global_styles.background}>
-        <TextInput
-        placeholder="Example@gmail.com..."
-        onChangeText={(email) => this.setState({email})}
-        value={this.state.email}
-        style={{padding:5, borderWidth: 1, margin:5}}
-        />
-        <TextInput
-        placeholder="Enter your password..."
-        onChangeText={(password) => this.setState({password})}
-        value={this.state.password}
-        secureTextEntry
-        style={{padding:5, borderWidth: 1, margin:5}}
-
-        
-        />
-        <Button 
+      <View style={global_styles.signInBackground}>
+        <Text style={global_styles.logo}>Coffida</Text>
+        <View style={global_styles.inputView}>
+          <TextInput
+            placeholder="Example@gmail.com..."
+            onChangeText={(email) => this.setState({email})}
+            value={this.state.email}
+            style={global_styles.inputText}
+          />
+        </View>
+        <View style={global_styles.inputView}>
+          <TextInput
+            placeholder="Enter your password..."
+            onChangeText={(password) => this.setState({password})}
+            value={this.state.password}
+            secureTextEntry
+            style={global_styles.inputText}
+          />
+        </View>
+        <Button
+          style={global_styles.buttonStyle} 
           title="Sign in"
           onPress={() => this.login()}
         />
         <Button 
+          style={global_styles.buttonStyle} 
           title="Create Account"
           onPress={() =>
             this.props.navigation.navigate('Create Account')

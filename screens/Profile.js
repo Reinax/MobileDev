@@ -1,6 +1,6 @@
 import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Text, TextInput, View, Button, ToastAndroid} from 'react-native';
+import { Text, TextInput, View, Button, ToastAndroid, ImageBackground} from 'react-native';
 import { global_styles } from '../GblStyle/GlobalStyle';
 
 class Profile extends React.Component {
@@ -9,28 +9,11 @@ class Profile extends React.Component {
 
     this.state = {
       isLoading: true,
-      listData: [],
-      token: ''
+      token: '',
+      firstName: "",
+      lastName: "",
+      userEmail: ""
     }
-}
-
-componentDidMount() {
-  this.unsubscribe = this.props.navigation.addListener('focus', () => {
-    this.checkLoggedIn();
-  });
-}
-
-componentWillUnmount() {
-  this.unsubscribe();
-}
-
-checkLoggedIn = async () => {
-  const value = await AsyncStorage.getItem('@session_token');
-  if (value !== null) {
-      this.setState({token:value});
-  } else {
-      this.props.navigation.navigate("Sign In");
-  }
 }
 
 logout = async () => {
@@ -60,18 +43,20 @@ logout = async () => {
   })
 }
 
-userData = async() => {
-  let token = await AsyncStorage.getItem('@user_id');
-  return fetch("http://10.0.2.2:3333/api/1.0.0/user/" + token, {
+getUserData = async() => {
+  let userID = await AsyncStorage.getItem('@user_id');
+  let token = await AsyncStorage.getItem('@session_token');
+  return fetch("http://10.0.2.2:3333/api/1.0.0/user/" + userID, {
     method: 'get',
     headers: {
       'X-Authorization': token
-    }
+    },
   })
 
   .then((response) => {
     if(response.status === 200){
-
+      ToastAndroid.show("Data loaded.", ToastAndroid.SHORT);
+      return response.json()
     } else if(response.status === 401){
       throw 'Unauthorised'
     } else if(response.status === 404){
@@ -80,28 +65,76 @@ userData = async() => {
       throw 'something went wrong'
     }
   })
+  .then((json) => {
+    console.log(json);
+    this.setState({
+      firstName: json.first_name,
+      lastName: json.last_name,
+      userEmail: json.email
+    });
+  })
   .catch((error) => {
     console.log(error);
     ToastAndroid.show(error, ToastAndroid.SHORT);
   })
 }
 
+componentDidMount() {
+  this.unsubscribe = this.props.navigation.addListener('focus', () => {
+    this.checkLoggedIn();
+    this.getUserData();
+  });
+}
+
+componentWillUnmount() {
+  this.unsubscribe();
+}
+
+checkLoggedIn = async () => {
+  const value = await AsyncStorage.getItem('@session_token');
+  if (value !== null) {
+      this.setState({token:value});
+  } else {
+      this.props.navigation.navigate("Sign In");
+      this.setState({
+        isLoading: false
+      })
+  }
+}
+
   render() {
+    if(this.state.isLoading){
     return (
-      <View style={global_styles.background}>
-        <Text></Text>
-        <Text>Change Password</Text>
-        <TextInput 
-          placeholder="Change password..."
-          secureTextEntry
-        />
-        <Text>Yet to be Edited!</Text>
-        <Button
-          title="Logout"
-          onPress={() => this.logout()}
-        />
-      </View>
-    );
+        <View style={global_styles.background}>
+          <ImageBackground source={require('B:/MobileDev/myProject/MobileDev/assets/coffeeProfile.jpeg')} style={{flex: 1}}>
+            <View style={global_styles.profileContainer}>
+              <Text style={global_styles.profileText}>Account First Name: {this.state.firstName}</Text>
+              <Text style={global_styles.profileText}>Account Surname: {this.state.lastName}</Text>
+              <Text style={global_styles.profileText}>Account Email: {this.state.userEmail}</Text>
+              <Text>Change Password</Text>
+              <TextInput 
+                placeholder="Change password..."
+                secureTextEntry
+              />
+            </View>
+            <View style={global_styles.buttonContainer}>
+            <Button
+              style={global_styles.buttonStyle}  
+              title="Logout"
+              onPress={() => this.logout()}
+            />
+            <Button
+              style={global_styles.buttonStyle}  
+              title="Settings"
+              onPress={() =>
+                this.props.navigation.navigate('settingsScreen')
+              }
+            />
+            </View>
+          </ImageBackground>
+        </View>
+      );
+    }
   }
 }
 
