@@ -1,9 +1,8 @@
 // Reviews.js
-import * as React from 'react';
-import react from 'react';
-import {Button, View, Text} from 'react-native';
+import React from 'react';
+import { Text, View, Button,} from 'react-native';
 
-export default class Review extends react.Component {
+  class Reviews extends react.Component {
   render() {
     return (
       <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -29,3 +28,5 @@ export default class Review extends react.Component {
     );
   }
 }
+
+export default Reviews;

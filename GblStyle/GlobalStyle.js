@@ -1,3 +1,4 @@
+import React from 'react';
 import { StyleSheet } from 'react-native';
 
 const global_styles = StyleSheet.create ({
@@ -38,16 +39,18 @@ const global_styles = StyleSheet.create ({
         justifyContent: 'flex-start',
         flexDirection: 'column',
     },
-    itemView: {
-        flex: 1,
-        flexDirection: 'row',
-        paddingHorizontal: 15
-    },
     itemInfo: {
-        flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
-        margin: 10
+        alignItems: 'center'
+    },
+    coffeeInfoContainer: {
+        height: 150,
+        width: 400,
+        elevation: 5,
+        borderColor: "black",
+        borderRadius: 10,
+        paddingVertical: 30,
+        paddingHorizontal: 15
     },
     logo:{
         fontWeight:"bold",

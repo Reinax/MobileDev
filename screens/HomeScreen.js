@@ -3,6 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text, View, ActivityIndicator, ToastAndroid, PermissionsAndroid, FlatList} from 'react-native';
 import { global_styles } from '../GblStyle/GlobalStyle';
 import Geolocation from '@react-native-community/geolocation';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
 class HomeScreen extends React.Component {
@@ -13,6 +15,8 @@ class HomeScreen extends React.Component {
       isLoading: true,
       listData: "",
       coffeeData: [],
+      locID: "",
+      isFavourite: false
     }
   }
 
@@ -143,13 +147,50 @@ class HomeScreen extends React.Component {
       console.log(json);
       this.setState({
         isLoading: false,
+        locID: json.location_id,
         coffeeData: json,
+
       })
     })
     .catch((error) => {
         console.log(error);
         ToastAndroid.show(error, ToastAndroid.SHORT);
     })
+  }
+
+  favouriteLocation = async () => {
+    const value = await AsyncStorage.getItem('@session_token');
+    console.log(this.state.locID)
+    const locID = this.state.locID;
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + locID + "/favourite", {
+      method: 'POST',
+      headers: {
+          'X-Authorization': value,
+          'Content-Type': 'application/json'
+      },
+    })
+    .then((response) => {
+        if(response.status === 200){
+          ToastAndroid.show("Liked.", ToastAndroid.SHORT);
+          return response.json()
+        } else if(response.status === 400){
+          throw 'Bad Request';
+        } else if(response.status === 401){
+          throw 'Unauthorised';
+        } else if(response.status === 404){
+          throw 'Not Found';
+        } else {
+          throw 'Server Error';
+        }
+    })
+    .then(async (responseJson) => {
+        console.log(responseJson);
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
+
   }
 
 
@@ -165,22 +206,29 @@ class HomeScreen extends React.Component {
         <View style={global_styles.background}>
           <FlatList
             data={this.state.coffeeData}
-            keyExtractor={(x, i) => i}
+            keyExtractor={(x, i) => i.toString()}
             renderItem={({ item }) => {
               return ( 
-                <View style={global_styles.itemView}>
-                  <View>
-                    
-                  </View>
+                <TouchableOpacity
+                  style = {global_styles.coffeeInfoContainer}
+                >
                   <View style={global_styles.itemInfo}>
                     <Text>
-                      {`${item.location_name.toString()} `}
+                      {`${item.location_name} `}
                     </Text>
                     <Text>
-                    {`${item.location_town.toString()}`} 
+                    {`${item.location_town}`} 
                     </Text>
+                    <Text>
+                      Rating: {`${item.avg_overall_rating}`}
+                    </Text>
+                    <Icon.Button
+                      name = "heart-outline" color = {"black"}  size = {26} backgroundColor="transparent" 
+                      onPress= {() => 
+                        this.favouriteLocation()
+                      }></Icon.Button>
                   </View>
-                </View>
+                </TouchableOpacity>
             )
             }}
           />
