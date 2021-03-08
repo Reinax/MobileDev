@@ -1,9 +1,8 @@
 import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Text, View, ActivityIndicator, ToastAndroid, PermissionsAndroid, FlatList} from 'react-native';
+import { Text, View, ActivityIndicator, ToastAndroid, PermissionsAndroid, FlatList, TouchableOpacity} from 'react-native';
 import { global_styles } from '../GblStyle/GlobalStyle';
 import Geolocation from '@react-native-community/geolocation';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 
@@ -15,8 +14,8 @@ class HomeScreen extends React.Component {
       isLoading: true,
       listData: "",
       coffeeData: [],
-      locID: "",
-      isFavourite: false
+      isFavourite: false,
+      favouriteLocs: []
     }
   }
 
@@ -100,7 +99,7 @@ class HomeScreen extends React.Component {
         })
         .then((responseJson) => {
           this.setState({
-            listData: responseJson
+            favouriteLocs: responseJson.favourite_locations,
           })
         })
         .catch((error) => {
@@ -144,12 +143,9 @@ class HomeScreen extends React.Component {
       }
     })
     .then((json) => {
-      console.log(json);
       this.setState({
         isLoading: false,
-        locID: json.location_id,
         coffeeData: json,
-
       })
     })
     .catch((error) => {
@@ -158,11 +154,37 @@ class HomeScreen extends React.Component {
     })
   }
 
-  favouriteLocation = async () => {
+  locationInfo = async (locationID) => {
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + locationID ,{
+      method: "GET"
+    })
+    .then((response) => {
+      if(response.status === 200){
+        ToastAndroid.show("Data loaded.", ToastAndroid.SHORT);
+        return response.json()
+      } else if(response.status === 400){
+          ToastAndroid.show("Bad Request", ToastAndroid.SHORT);
+          throw 'Unauthorised'
+      } else if(response.status === 401){
+          ToastAndroid.show("Unauthorised", ToastAndroid.SHORT);
+          throw 'Not found'
+      } else {
+          throw 'something went wrong'
+      }
+    })
+    .then((json) => {
+      console.log(json);
+    })
+    .catch((error) => {
+        console.log(error);
+        ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
+  }
+
+  favouriteLocation = async (locationID) => {
+
     const value = await AsyncStorage.getItem('@session_token');
-    console.log(this.state.locID)
-    const locID = this.state.locID;
-    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + locID + "/favourite", {
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + locationID + "/favourite", {
       method: 'POST',
       headers: {
           'X-Authorization': value,
@@ -172,7 +194,8 @@ class HomeScreen extends React.Component {
     .then((response) => {
         if(response.status === 200){
           ToastAndroid.show("Liked.", ToastAndroid.SHORT);
-          return response.json()
+          this.state.favouriteLocs.push(locationID);
+          this.getData();
         } else if(response.status === 400){
           throw 'Bad Request';
         } else if(response.status === 401){
@@ -193,6 +216,36 @@ class HomeScreen extends React.Component {
 
   }
 
+  unfavouriteLocation = async (locationID) => {
+    const value = await AsyncStorage.getItem('@session_token');
+    return fetch("http://10.0.2.2:3333/api/1.0.0/location/" + locationID + "/favourite", {
+      method: 'DELETE',
+      headers: {
+          'X-Authorization': value,
+          'Content-Type': 'application/json'
+      },
+    })
+    .then((response) => {
+        if(response.status === 200){
+          ToastAndroid.show("unLiked.", ToastAndroid.SHORT);
+          this.getData();
+          this.state.favouriteLocs = this.state.favouriteLocs.filter(fl => fl != locationID);
+        } else if(response.status === 400){
+          throw 'Bad Request';
+        } else if(response.status === 401){
+          throw 'Unauthorised';
+        } else if(response.status === 404){
+          throw 'Not Found';
+        } else {
+          throw 'Server Error';
+        }
+    })
+    .catch((error) => {
+      console.log(error);
+      ToastAndroid.show(error, ToastAndroid.SHORT);
+    })
+  }
+
 
   render() {
     if(this.state.isLoading){
@@ -211,21 +264,30 @@ class HomeScreen extends React.Component {
               return ( 
                 <TouchableOpacity
                   style = {global_styles.coffeeInfoContainer}
+                  onPress={() => this.locationInfo(item.location_id) }
                 >
                   <View style={global_styles.itemInfo}>
                     <Text>
-                      {`${item.location_name} `}
+                      {`${item.location_name}`}
                     </Text>
                     <Text>
-                    {`${item.location_town}`} 
+                    {`${item.location_town}`}
                     </Text>
                     <Text>
                       Rating: {`${item.avg_overall_rating}`}
                     </Text>
                     <Icon.Button
                       name = "heart-outline" color = {"black"}  size = {26} backgroundColor="transparent" 
-                      onPress= {() => 
-                        this.favouriteLocation()
+                      onPress= {() => {
+                          const favouriteLocIDs = this.state.favouriteLocs?.map(location => location.location_id) ?? [];
+                          console.log(favouriteLocIDs);
+                          if(favouriteLocIDs.includes(item.location_id))
+                          {
+                            this.unfavouriteLocation(item.location_id)
+                          } else {
+                            this.favouriteLocation(item.location_id)
+                          }
+                        }
                       }></Icon.Button>
                   </View>
                 </TouchableOpacity>
