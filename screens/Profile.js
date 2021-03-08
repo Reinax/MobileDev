@@ -12,7 +12,8 @@ class Profile extends React.Component {
       token: '',
       firstName: "",
       lastName: "",
-      userEmail: ""
+      userEmail: "",
+      password: ""
     }
 }
 
@@ -79,6 +80,42 @@ getUserData = async() => {
   })
 }
 
+changeUserData = async() => {
+  let userID = await AsyncStorage.getItem('@user_id');
+  let token = await AsyncStorage.getItem('@session_token');
+  return fetch("http://10.0.2.2:3333/api/1.0.0/user/" + userID, {
+    method: 'PATCH',
+    headers: {
+      'X-Authorization': token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({password:this.state.password})
+  })
+
+  .then((response) => {
+    if(response.status === 200){
+      ToastAndroid.show("Password Changed", ToastAndroid.SHORT);
+    } else if(response.status === 400){
+      throw 'Bad Request'
+    }else if(response.status === 401){
+      throw 'Unauthorised'
+    }else if(response.status === 403){
+      throw 'Forbidden'
+    } else if(response.status === 404){
+      throw 'Not found'
+    } else {
+      throw 'something went wrong'
+    }
+  })
+  .then((json) => {
+    console.log(json);
+  })
+  .catch((error) => {
+    console.log(error);
+    ToastAndroid.show(error, ToastAndroid.SHORT);
+  })
+}
+
 componentDidMount() {
   this.unsubscribe = this.props.navigation.addListener('focus', () => {
     this.checkLoggedIn();
@@ -111,11 +148,18 @@ checkLoggedIn = async () => {
               <Text style={global_styles.profileText}>Account First Name: {this.state.firstName}</Text>
               <Text style={global_styles.profileText}>Account Surname: {this.state.lastName}</Text>
               <Text style={global_styles.profileText}>Account Email: {this.state.userEmail}</Text>
-              <Text>Change Password</Text>
               <TextInput 
                 placeholder="Change password..."
+                onChangeText={(password) => this.setState({password})}
+                value={this.state.password}
                 secureTextEntry
               />
+              <Button
+                title="Change Password"
+                onPress={() => this.changeUserData()}
+              >
+
+              </Button>
             </View>
             <View style={global_styles.buttonContainer}>
             <Button

@@ -44,8 +44,18 @@ const global_styles = StyleSheet.create ({
         alignItems: 'center'
     },
     coffeeInfoContainer: {
-        height: 150,
-        width: 400,
+        justifyContent: 'center',
+        height: 200,
+        width: 200,
+        elevation: 5,
+        borderColor: "black",
+        borderRadius: 10,
+        paddingVertical: 30,
+        paddingHorizontal: 15
+    },
+    reviewsInfoContainer: {
+        height: 200,
+        width: 200,
         elevation: 5,
         borderColor: "black",
         borderRadius: 10,

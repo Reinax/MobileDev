@@ -11,6 +11,7 @@ import SignIn from './screens/SignIn';
 import CreateAccount from './screens/CreateAccount';
 import Profile from './screens/Profile';
 import settingsScreen from './screens/settingsScreen';
+import createReviews from './screens/createReviews';
 
 navigator.geolocation = require('@react-native-community/geolocation');
 
@@ -28,6 +29,7 @@ class App extends React.Component {
           <Stack.Screen name="Home Screen" component={BottomTab} options={{ headerShown: false}}/>
           <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false}}/>
           <Stack.Screen name="settingsScreen" component={settingsScreen} options={{ title: 'Settings'}} />
+          <Stack.Screen name="createReviews" component={createReviews} option={{ title: 'Create Review'}} />
         </Stack.Navigator>
       </NavigationContainer>
     );
